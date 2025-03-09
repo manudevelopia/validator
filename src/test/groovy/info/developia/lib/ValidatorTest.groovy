@@ -25,4 +25,14 @@ class ValidatorTest extends Specification {
         false  | 'title' | 'This is more than 10 characters'
         false  | null    | 'author'
     }
+
+    def "should validate object"() {
+        given:
+        def book = new Book(title: "title", author: "author")
+        when:
+        def validation = Validator.is(book)
+        then:
+        validation.valid()
+        !validation.hasErrors()
+    }
 }

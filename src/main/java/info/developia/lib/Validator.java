@@ -7,8 +7,8 @@ import info.developia.lib.validator.Validators;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Validator {
 
@@ -35,13 +35,13 @@ public class Validator {
         return true;
     }
 
-    public static Validation is(Object obj) {
-        List<String> errors = validate(obj);
-        return new Validation(errors.isEmpty());
+    public static ValidationResult is(Object obj) {
+        var errors = validate(obj);
+        return new ValidationResult(errors.isEmpty(), errors);
     }
 
-    public static List<String> validate(Object obj) {
-        List<String> errors = new ArrayList<>();
+    public static Map<String, String> validate(Object obj) {
+        Map<String, String> errors = new LinkedHashMap<>();
         Class<?> clazz = obj.getClass();
 
         for (Field field : clazz.getDeclaredFields()) {
@@ -49,23 +49,21 @@ public class Validator {
                 VarHandle varHandle = MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflectVarHandle(field);
                 Object value = varHandle.get(obj);
 
-                if (field.isAnnotationPresent(NotNull.class) && value == null) {
-                    NotNull annotation = field.getAnnotation(NotNull.class);
-                    errors.add(annotation.message());
-                }
-
-                if (field.isAnnotationPresent(Length.class) && value instanceof String) {
-                    Length annotation = field.getAnnotation(Length.class);
-                    int length = ((String) value).length();
-                    if (length < annotation.min() || length > annotation.max()) {
-                        errors.add(annotation.message() + " (Expected: " + annotation.min() + "-" + annotation.max() + ")");
+                if (field.isAnnotationPresent(NotNull.class)) {
+                    if (!Validators.isNotNull(value)) {
+                        NotNull annotation = field.getAnnotation(NotNull.class);
+                        errors.put(field.getName(), annotation.message());
                     }
                 }
 
-            } catch (IllegalAccessException e) {
-                errors.add("Cannot access field: " + field.getName());
+                if (field.isAnnotationPresent(Length.class)) {
+                    Length annotationLength = field.getAnnotation(Length.class);
+                    if (!Validators.isLength(value, annotationLength)) {
+                        errors.put(field.getName(), annotationLength.message() + " (Expected: " + annotationLength.min() + "-" + annotationLength.max() + ")");
+                    }
+                }
             } catch (Exception e) {
-                System.out.println("Other error while accessing field: " + field.getName());
+                System.out.println("Error while accessing field: " + field.getName());
             }
         }
         return errors;
