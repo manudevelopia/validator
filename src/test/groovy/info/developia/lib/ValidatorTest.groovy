@@ -13,10 +13,16 @@ class ValidatorTest extends Specification {
         String author
     }
 
-    def "should validate object"() {
-        when:
-        def book = new Book(title: "title", author: "author")
-        then:
-        Validator.is(book).valid()
+    def "should validate object with provided data"() {
+        expect:
+        def book = new Book(title: title, author: author)
+        Validator.isValid(book) == result
+        where:
+        result | title   | author
+        true   | 'title' | 'author'
+        false  | 'title' | 'a'
+        false  | 'title' | null
+        false  | 'title' | 'This is more than 10 characters'
+        false  | null    | 'author'
     }
 }

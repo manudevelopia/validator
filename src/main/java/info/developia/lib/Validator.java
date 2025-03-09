@@ -2,6 +2,7 @@ package info.developia.lib;
 
 import info.developia.lib.annotation.Length;
 import info.developia.lib.annotation.NotNull;
+import info.developia.lib.validator.Validators;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -10,6 +11,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Validator {
+
+    public static boolean isValid(Object object) {
+        Class<?> clazz = object.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            try {
+                VarHandle varHandle = MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflectVarHandle(field);
+                Object value = varHandle.get(object);
+
+                if (field.isAnnotationPresent(NotNull.class)) {
+                    if (!Validators.isNotNull(value)) return false;
+                }
+
+                if (field.isAnnotationPresent(Length.class)) {
+                    if (!Validators.isLength(value, field.getAnnotation(Length.class))) return false;
+                }
+            } catch (IllegalAccessException e) {
+                System.out.println("Cannot access field: " + field.getName());
+            } catch (Exception e) {
+                System.out.println("Other error while accessing field: " + field.getName());
+            }
+        }
+        return true;
+    }
 
     public static Validation is(Object obj) {
         List<String> errors = validate(obj);
