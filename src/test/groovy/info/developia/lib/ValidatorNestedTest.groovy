@@ -12,7 +12,7 @@ class ValidatorNestedTest extends Specification {
         def book = new Book(title, author)
         expect:
         Validator.isValid(book) == result
-//        Validator.is(book).valid() == result
+        Validator.is(book).valid() == result
         where:
         result | title   | name                              | surname
         true   | 'title' | 'name'                            | 'surname'
