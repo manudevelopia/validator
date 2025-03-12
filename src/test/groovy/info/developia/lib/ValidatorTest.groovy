@@ -1,24 +1,17 @@
 package info.developia.lib
 
-import info.developia.lib.annotation.Length
-import info.developia.lib.annotation.NotNull
+import lib.Author
 import spock.lang.Specification
 
 class ValidatorTest extends Specification {
 
-    class Book {
-        @NotNull
-        String title
-        @Length(min = 3, max = 10)
-        String author
-    }
-
     def "should validate object with provided data"() {
         expect:
-        def book = new Book(title: title, author: author)
-        Validator.isValid(book) == result
+        def author = new Author(name, surname)
+        Validator.isValid(author) == result
+        Validator.is(author).valid() == result
         where:
-        result | title   | author
+        result | name    | surname
         true   | 'title' | 'author'
         false  | 'title' | 'a'
         false  | 'title' | null
@@ -28,9 +21,9 @@ class ValidatorTest extends Specification {
 
     def "should validate object"() {
         given:
-        def book = new Book(title: "title", author: "author")
+        def author = new Author('name', 'surname')
         when:
-        def validation = Validator.is(book)
+        def validation = Validator.is(author)
         then:
         validation.valid()
         !validation.hasErrors()
