@@ -30,10 +30,8 @@ public class Validator {
                 if (isUserDefinedClass(value.getClass())) {
                     if (!isValid(value)) return false;
                 }
-            } catch (IllegalAccessException e) {
-                System.out.println("Cannot access field: " + field.getName());
             } catch (Exception e) {
-                System.out.println("Other error while accessing field: " + field.getName());
+                System.out.println("Error while accessing field: " + field.getName());
             }
         }
         return true;
@@ -74,7 +72,7 @@ public class Validator {
                 }
 
                 if (isUserDefinedClass(value.getClass())) {
-                    return validate(value);
+                    errors.putAll(validate(value));
                 }
             } catch (Exception e) {
                 System.out.println("Error while accessing field: " + field.getName());
