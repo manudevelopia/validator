@@ -15,4 +15,6 @@ public @interface Number {
     long max() default Long.MAX_VALUE;
 
     boolean positive() default false;
+
+    boolean negative() default false;
 }
