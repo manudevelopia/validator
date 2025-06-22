@@ -9,8 +9,8 @@ public class Validators {
     }
 
     public static boolean isLength(Object value, Length annotation) {
-        if (!(value instanceof String)) return false;
-        int length = ((String) value).length();
+        if (!(value instanceof String valueString)) return false;
+        int length = valueString.length();
         return length >= annotation.min() && length <= annotation.max();
     }
 }
