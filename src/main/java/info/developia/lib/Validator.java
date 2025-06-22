@@ -2,6 +2,7 @@ package info.developia.lib;
 
 import info.developia.lib.annotation.Length;
 import info.developia.lib.annotation.NotNull;
+import info.developia.lib.annotation.Number;
 import info.developia.lib.validator.Validators;
 
 import java.lang.invoke.MethodHandles;
@@ -25,6 +26,10 @@ public class Validator {
 
                 if (field.isAnnotationPresent(Length.class)) {
                     if (!Validators.isLength(value, field.getAnnotation(Length.class))) return false;
+                }
+
+                if (field.isAnnotationPresent(Number.class)) {
+                    if (!Validators.isNumber(value, field.getAnnotation(Number.class))) return false;
                 }
 
                 if (isUserDefinedClass(value.getClass())) {
@@ -68,6 +73,13 @@ public class Validator {
                     Length annotationLength = field.getAnnotation(Length.class);
                     if (!Validators.isLength(value, annotationLength)) {
                         errors.put(field.getName(), annotationLength.message() + " (Expected: " + annotationLength.min() + "-" + annotationLength.max() + ")");
+                    }
+                }
+
+                if (field.isAnnotationPresent(Number.class)) {
+                    Number annotation = field.getAnnotation(Number.class);
+                    if (!Validators.isNumber(value, annotation)) {
+                        errors.put(field.getName(), annotation.message() + " (Expected: " + annotation.min() + "-" + annotation.max() + ")");
                     }
                 }
 
